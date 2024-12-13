@@ -1,4 +1,4 @@
-package Logi
+package logi
 
 import (
 	"strconv"
