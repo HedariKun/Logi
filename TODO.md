@@ -8,21 +8,22 @@
 * [X] **Console output**
 * [X] **File output** (basic)
 * [X] **Custom field injection** (like request_id, trace_id)
+* [X] **Colored console output**
+* [X] **Structured fields** (key-value pairs)
+* [X] **Context-based logging**
+* [X] **Custom hooks** (before/after log handlers)
+* [X] **Multiple outputs** (console + file + remote)
+* [X] **Config-driven setup**
 
 ## 🧱 **UnderWork Features**
 
 * [ ] **Asynchronous logging** (background writer with channel buffer)
 * [ ] **File rotation** by size or date
 * [ ] **Old log cleanup** (max days or max size)
-* [ ] **Colored console output**
-* [ ] **Structured fields** (key-value pairs)
-* [ ] **Context-based logging** (read data from `context.Context`)
-* [ ] **Custom hooks** (before/after log handlers)
 * [ ] **Multiple outputs** (console + file + remote)
 * [ ] **Custom log format per output**
 * [ ] **Error handling in logging itself** (e.g., write errors)
 * [ ] **Log filtering** (by module name, tag, or keyword)
-* [ ] **Config-driven setup** (load settings from YAML/JSON)
 * [ ] **Graceful shutdown** (flush buffered logs before exit)
 
 ---
