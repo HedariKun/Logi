@@ -129,7 +129,7 @@ func (m *Manager) Info(message string) {
 	entry := m.PrepareEntry(InfoLevel, message)
 
 	for _, logger := range m.Loggers {
-		logger.Info(*entry)
+		logger.Info(entry.Copy())
 	}
 }
 
@@ -141,7 +141,7 @@ func (m *Manager) Debug(message string) {
 	entry := m.PrepareEntry(DebugLevel, message)
 
 	for _, logger := range m.Loggers {
-		logger.Debug(*entry)
+		logger.Debug(entry.Copy())
 	}
 }
 
@@ -153,7 +153,7 @@ func (m *Manager) Warn(message string) {
 	entry := m.PrepareEntry(WarnLevel, message)
 
 	for _, logger := range m.Loggers {
-		logger.Warn(*entry)
+		logger.Warn(entry.Copy())
 	}
 }
 
@@ -165,7 +165,7 @@ func (m *Manager) Error(message string) {
 	entry := m.PrepareEntry(ErrorLevel, message)
 
 	for _, logger := range m.Loggers {
-		logger.Error(*entry)
+		logger.Error(entry.Copy())
 	}
 }
 
@@ -177,6 +177,6 @@ func (m *Manager) Fatal(message string) {
 	entry := m.PrepareEntry(FatalLevel, message)
 
 	for _, logger := range m.Loggers {
-		logger.Fatal(*entry)
+		logger.Fatal(entry.Copy())
 	}
 }

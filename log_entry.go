@@ -1,6 +1,7 @@
 package logi
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -30,23 +31,39 @@ type Entry struct {
 
 	Fields map[string]string `json:"meta_data"`
 
-	hooks map[string]func(*Entry) string
+	hooks map[string]func(Entry) string
+}
+
+func (e *Entry) Copy() Entry {
+	newEntry := *e
+
+	newEntry.hooks = make(map[string]func(Entry) string)
+	for k, v := range e.hooks {
+		newEntry.hooks[k] = v
+	}
+
+	newEntry.Fields = make(map[string]string)
+	for k, v := range e.Fields {
+		newEntry.Fields[k] = v
+	}
+
+	return newEntry
 }
 
 func NewEntry() *Entry {
 	entry := Entry{}
-	entry.hooks = make(map[string]func(*Entry) string)
+	entry.hooks = make(map[string]func(Entry) string)
 
-	entry.hooks[string(EntryTagMessage)] = func(e *Entry) string { return e.Message }
-	entry.hooks[string(EntryTagLevel)] = func(e *Entry) string { return string(e.Level) }
-	entry.hooks[string(EntryTagTime)] = func(e *Entry) string {
+	entry.hooks[string(EntryTagMessage)] = func(e Entry) string { return e.Message }
+	entry.hooks[string(EntryTagLevel)] = func(e Entry) string { return string(e.Level) }
+	entry.hooks[string(EntryTagTime)] = func(e Entry) string {
 		if e.manager.options.ShowTimeStamp {
 			return e.TimeStamp.Format(time.RFC3339)
 		} else {
 			return ""
 		}
 	}
-	entry.hooks[string(EntryTagFile)] = func(e *Entry) string {
+	entry.hooks[string(EntryTagFile)] = func(e Entry) string {
 		if e.FileName != "" && e.LineNumber != 0 {
 			return e.FileName + ":" + fmt.Sprintf("%d", e.LineNumber)
 		} else if e.FileName != "" && e.LineNumber == 0 {
@@ -58,7 +75,7 @@ func NewEntry() *Entry {
 		}
 	}
 
-	entry.hooks[string(EntryTagField)] = func(e *Entry) string {
+	entry.hooks[string(EntryTagField)] = func(e Entry) string {
 		if e.manager.options.ShowFields && len(e.Fields) > 0 {
 			value := ""
 			for k, v := range e.Fields {
@@ -73,27 +90,28 @@ func NewEntry() *Entry {
 	return &entry
 }
 
-func (e *Entry) BeforeTag(tag EntryTag, hook func(*Entry) string) {
+func (e *Entry) BeforeTag(tag EntryTag, hook func(Entry) string) {
 	e.hooks["before:"+string(tag)] = hook
 }
 
-func (e *Entry) AfterTag(tag EntryTag, hook func(*Entry) string) {
+func (e *Entry) AfterTag(tag EntryTag, hook func(Entry) string) {
 	e.hooks["after:"+string(tag)] = hook
 }
 
-func (e *Entry) BeforeAll(hook func(*Entry) string) {
+func (e *Entry) BeforeAll(hook func(Entry) string) {
 	e.hooks["before:all"] = hook
 }
 
-func (e *Entry) AfterAll(hook func(*Entry) string) {
+func (e *Entry) AfterAll(hook func(Entry) string) {
 	e.hooks["after:all"] = hook
 }
 
-func (e *Entry) HandleTag(tag EntryTag, hook func(*Entry) string) {
+func (e *Entry) HandleTag(tag EntryTag, hook func(Entry) string) {
 	e.hooks[string(tag)] = hook
 }
 
 func (e *Entry) String() string {
+	entry := *e
 	res := e.fmt
 
 	tags := []EntryTag{EntryTagMessage, EntryTagLevel, EntryTagTime, EntryTagFile, EntryTagField}
@@ -109,24 +127,24 @@ func (e *Entry) String() string {
 			continue
 		}
 
-		tagValue += tagHook(e)
+		tagValue += tagHook(entry)
 
 		beforeHook, ok := e.hooks["before:"+string(tag)]
 		if ok {
-			tagValue = beforeHook(e) + tagValue
+			tagValue = beforeHook(entry) + tagValue
 		}
 
 		if beforeAllOk {
-			tagValue = beforeAll(e) + tagValue
+			tagValue = beforeAll(entry) + tagValue
 		}
 
 		afterHook, ok := e.hooks["after:"+string(tag)]
 		if ok {
-			tagValue += afterHook(e)
+			tagValue += afterHook(entry)
 		}
 
 		if afterAllOk {
-			tagValue += afterAll(e)
+			tagValue += afterAll(entry)
 		}
 
 		res = strings.Replace(res, "$"+string(tag)+"$", tagValue, 1)
@@ -134,4 +152,12 @@ func (e *Entry) String() string {
 
 	return res
 
+}
+
+func (e *Entry) Json() (string, error) {
+	bytes, err := json.Marshal(e)
+	if err != nil {
+		return "", err
+	}
+	return string(bytes), nil
 }

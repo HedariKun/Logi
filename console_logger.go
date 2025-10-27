@@ -59,8 +59,8 @@ func NewConsoleLogger(option ...ConsoleLoggerOptions) ConsoleLogger {
 	}
 }
 
-func prepareEntry(entry Entry) Entry {
-	entry.HandleTag(EntryTagLevel, func(e *Entry) string {
+func (console ConsoleLogger) prepareEntry(entry Entry) Entry {
+	entry.HandleTag(EntryTagLevel, func(e Entry) string {
 		switch e.Level {
 		case DebugLevel:
 			return Blue + string(entry.Level) + Reset
@@ -79,26 +79,26 @@ func prepareEntry(entry Entry) Entry {
 }
 
 func (c ConsoleLogger) Info(entry Entry) {
-	entry = prepareEntry(entry)
+	entry = c.prepareEntry(entry)
 	c.optionss.Stdout.Write([]byte(entry.String()))
 }
 
 func (c ConsoleLogger) Debug(entry Entry) {
-	entry = prepareEntry(entry)
+	entry = c.prepareEntry(entry)
 	c.optionss.Stdout.Write([]byte(entry.String()))
 }
 
 func (c ConsoleLogger) Warn(entry Entry) {
-	entry = prepareEntry(entry)
+	entry = c.prepareEntry(entry)
 	c.optionss.Stdout.Write([]byte(entry.String()))
 }
 
 func (c ConsoleLogger) Error(entry Entry) {
-	entry = prepareEntry(entry)
+	entry = c.prepareEntry(entry)
 	c.optionss.Stdout.Write([]byte(entry.String()))
 }
 
 func (c ConsoleLogger) Fatal(entry Entry) {
-	entry = prepareEntry(entry)
+	entry = c.prepareEntry(entry)
 	c.optionss.Stdout.Write([]byte(entry.String()))
 }
