@@ -1,5 +1,3 @@
 module github.com/hedarikun/logi
 
-go 1.23.1
-
-require gopkg.in/telebot.v3 v3.3.8 // indirect
+go 1.25.0
